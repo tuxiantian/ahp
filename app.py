@@ -77,7 +77,7 @@ def save_history():
         if not request_data or not response_data:
             return jsonify({'error': 'Invalid input data'}), 400
 
-        conn = mysql.connector.connect(**db_config)
+        conn = get_db_connection()
         cursor = conn.cursor()
         insert_query = "INSERT INTO ahp_history (alternative_names,criteria_names,request_data, response_data) VALUES (%s, %s,%s, %s)"
         print(','.join(alternative_names))
@@ -96,7 +96,7 @@ def save_history():
 @app.route('/ahp_history', methods=['GET'])
 def find_history():
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM ahp_history ORDER BY created_at DESC")
         history = cursor.fetchall()
