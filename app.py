@@ -1,20 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import mysql.connector
 import json
 import numpy as np
 from AHP import AHP  # 确保 AHP.py 文件在同一目录或 Python 路径中
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='build/static', template_folder='build')
 CORS(app)
 
-# 配置数据库连接
-db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '123456',
-    'database': 'test'
-}
+# 从配置文件加载数据库连接信息
+with open('config.json') as config_file:
+    config = json.load(config_file)
+
+db_config = config['db_config']
 
 def convert_to_numeric(matrix):
     """ 将字符串矩阵元素转换为数值 """
@@ -28,6 +26,16 @@ def convert_to_numeric(matrix):
 # 获取数据库连接
 def get_db_connection():
     return mysql.connector.connect(**db_config)
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/manifest.json')
+def manifest():
+    return app.send_static_file('manifest.json')
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
 
 @app.route('/ahp', methods=['POST'])
 def ahp_calculation():
